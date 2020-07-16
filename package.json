@@ -52,7 +52,7 @@
     "whatwg-fetch": "^3.0.0"
   },
   "scripts": {
-    "build": "NODE_ENV='production' webpack",
+    "build": "webpack",
     "develop": "npm-run-all --parallel start watch",
     "develop-local": "API_BASE='http://localhost:3000' yarn develop",
     "watch": "webpack -w",
