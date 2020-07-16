@@ -9,7 +9,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const S3Plugin = require('webpack-s3-plugin');
 
 const PATHS = {
-  dist: path.join(__dirname, './dist')
+  dist: path.join(__dirname, './dist'),
 };
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -24,87 +24,74 @@ const apiBase = process.env.API_BASE || 'https://kitchen.kanttiinit.fi';
 const definePlugin = new webpack.DefinePlugin({
   IS_PRODUCTION: isProduction,
   'process.env': {
-    NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+    NODE_ENV: JSON.stringify(process.env.NODE_ENV),
   },
   VERSION: JSON.stringify(pkg.version),
   API_BASE: JSON.stringify(apiBase),
-  PUBLIC_ASSET_PATH: JSON.stringify(publicAssetPath)
+  PUBLIC_ASSET_PATH: JSON.stringify(publicAssetPath),
 });
 
 const plugins = [
   new CleanWebpackPlugin({
-    cleanOnceBeforeBuildPatterns: ['**/*', '!worker*']
+    cleanOnceBeforeBuildPatterns: ['**/*', '!worker*'],
   }),
   definePlugin,
   new HtmlWebpackPlugin({
     template: './src/index.html',
     filename: 'index.html',
-    chunks: ['app']
+    chunks: ['app'],
   }),
   new HtmlWebpackPlugin({
     template: './admin/index_admin.html',
     filename: 'index_admin.html',
-    chunks: ['admin']
-  })
+    chunks: ['admin'],
+  }),
 ];
 
 if (isProduction) {
   plugins.push(
     new CompressionPlugin({
       test: /\.(js|css)$/,
-      filename: '[path]'
-    }),
-    new S3Plugin({
-      include: /.*\.(map|js|png|svg)/,
-      s3Options: { accessKeyId, secretAccessKey },
-      s3UploadOptions: {
-        Bucket: s3Bucket,
-        Region: s3Region,
-        ContentEncoding(fileName) {
-          if (/\.(js|css)$/.test(fileName)) {
-            return 'gzip';
-          }
-        }
-      }
+      filename: '[path]',
     })
   );
 }
 
 const commonConfig = {
   optimization: {
-    minimizer: isProduction ? [new TerserPlugin({ sourceMap: true })] : []
+    minimizer: isProduction ? [new TerserPlugin({ sourceMap: true })] : [],
   },
   mode: process.env.NODE_ENV || 'development',
   resolve: {
-    extensions: ['.mjs', '.ts', '.tsx', '.js', '.scss']
+    extensions: ['.mjs', '.ts', '.tsx', '.js', '.scss'],
   },
-  devtool: 'cheap-module-source-map'
+  devtool: 'cheap-module-source-map',
 };
 
 const appConfig = {
   ...commonConfig,
   entry: {
     app: ['./src/index.tsx'],
-    admin: ['./admin/index.tsx']
+    admin: ['./admin/index.tsx'],
   },
   optimization: {
     splitChunks: {
       cacheGroups: {
-        vendors: false
-      }
-    }
+        vendors: false,
+      },
+    },
   },
   output: {
     path: PATHS.dist,
     publicPath: isProduction ? publicAssetPath : '/',
     filename: '[name].[hash].js',
-    chunkFilename: '[hash].chunk.[chunkhash].js'
+    chunkFilename: '[hash].chunk.[chunkhash].js',
   },
   devServer: {
     contentBase: PATHS.dist,
     historyApiFallback: {
-      index: 'index.html'
-    }
+      index: 'index.html',
+    },
   },
   module: {
     rules: [
@@ -114,15 +101,15 @@ const appConfig = {
           {
             loader: 'file-loader',
             query: {
-              name: '[name].[ext]'
-            }
-          }
-        ]
+              name: '[name].[ext]',
+            },
+          },
+        ],
       },
-      { test: /\.tsx?$/, use: ['ts-loader'], exclude: /node_modules/ }
-    ]
+      { test: /\.tsx?$/, use: ['ts-loader'], exclude: /node_modules/ },
+    ],
   },
-  plugins
+  plugins,
 };
 
 const workerConfig = {
@@ -131,12 +118,12 @@ const workerConfig = {
   output: {
     path: PATHS.dist,
     publicPath: '/',
-    filename: 'worker.js'
+    filename: 'worker.js',
   },
   module: {
-    rules: [{ test: /\.tsx?$/, use: ['ts-loader'], exclude: /node_modules/ }]
+    rules: [{ test: /\.tsx?$/, use: ['ts-loader'], exclude: /node_modules/ }],
   },
-  plugins: [definePlugin]
+  plugins: [definePlugin],
 };
 
 module.exports = [appConfig, workerConfig];
