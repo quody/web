@@ -8,3 +8,4 @@ The (Webpack) development server can be started with `npm run develop` after whi
 
 ### ESLint
 We use [ESLint](http://eslint.org/) for linting JavaScript in order to keep the style uniform. ESLint has integrations for all major IDE's and we highly recommend installing it.
+
